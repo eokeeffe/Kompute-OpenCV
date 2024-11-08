@@ -1,4 +1,4 @@
-# Kompute Image manipulation Example
+# Kompute image_test Example
 
 This folder contains an end to end Kompute Example that implements an image manipulation using the new image container.
 This example is structured such that you will be able to extend it for your project.
@@ -12,7 +12,7 @@ To build you just need to run the CMake command in this folder as follows:
 
 ```bash
 git clone https://github.com/KomputeProject/kompute.git
-cd kompute/examples/array_multiplication
+cd kompute/examples/image_test
 mkdir build
 cd build
 cmake ..

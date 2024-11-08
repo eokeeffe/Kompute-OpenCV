@@ -1,6 +1,6 @@
-# Kompute Array Multiplication Example
+# Kompute Image manipulation Example
 
-This folder contains an end to end Kompute Example that implements logistic regression.
+This folder contains an end to end Kompute Example that implements an image manipulation using the new image container.
 This example is structured such that you will be able to extend it for your project.
 It contains a CMake build configuration that can be used in your production applications.
 
@@ -26,13 +26,13 @@ Form inside the `build/` directory run:
 ### Linux
 
 ```bash
-./kompute_array_mult
+./image_test <image location to use for processing>
 ```
 
 ### Windows
 
 ```bash
-.\Debug\kompute_array_mult.exe
+.\Debug\image_test.exe <image location to use for processing>
 ```
 
 ## Pre-requisites
@@ -43,3 +43,4 @@ In order to run this example, you will need the following dependencies:
     + The Vulkan SDK must be installed
 
 For the Vulkan SDK, the simplest way to install it is through [their website](https://vulkan.lunarg.com/sdk/home). You just have to follow the instructions for the relevant platform.
+

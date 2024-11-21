@@ -1,2 +1,3 @@
 # Ignoring all shaders
 */shader/*
+!image_test/shader/my_shader.comp

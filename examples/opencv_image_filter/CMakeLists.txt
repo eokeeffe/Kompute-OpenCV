@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(image_test)
+project(opencv_image_filter)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -40,6 +40,5 @@ add_library(shader INTERFACE "shader/my_shader.hpp")
 target_include_directories(shader INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 # Setting up main example code
-add_executable(image_test src/main.cpp)
-target_link_libraries(image_test PRIVATE shader kompute::kompute ${OpenCV_LIBS})
-
+add_executable(opencv_image_filter src/main.cpp)
+target_link_libraries(opencv_image_filter PRIVATE shader kompute::kompute ${OpenCV_LIBS})

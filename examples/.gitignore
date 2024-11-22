@@ -1,3 +1,4 @@
 # Ignoring all shaders
 */shader/*
-!image_test/shader/my_shader.comp
+!opencv_image_add/shader/my_shader.comp
+!opencv_image_filter/shader/my_shader.comp

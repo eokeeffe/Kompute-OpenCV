@@ -1,0 +1,44 @@
+#version 450
+
+precision highp float;
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, r8ui) uniform restrict readonly  uimage2D image_input;
+layout(set = 0, binding = 1, r32f) uniform restrict readonly  image2D kernel;
+layout(set = 0, binding = 2, r32f) uniform restrict writeonly image2D imageOutput;
+
+int get1Dindex(int x, int y, int width){
+    return y * width + x;
+}
+
+void main()
+{
+    uvec2 size = imageSize(image_input);
+    uvec2 ksize= imageSize(kernel);
+    uvec2 pco = uvec2(gl_GlobalInvocationID.x,gl_GlobalInvocationID.y);
+
+    uint pad = uint(ksize[0]-1/2.0);
+
+    uint minx = pco.x-pad;
+    uint maxx = pco.x+pad+1;
+    uint miny = pco.y-pad;
+    uint maxy = pco.y+pad+1;
+
+    if(minx<0){minx=0;}
+    if(miny<0){miny=0;}
+    if(maxx>size[0]){maxx=size[0]-1;}
+    if(maxy>size[1]){maxy=size[1]-1;}
+
+    vec4 sum = vec4(0.0);
+
+    for (uint i = minx; i < maxx; ++i)
+    {
+        for (uint j = miny; j < maxy; ++j){
+            vec4 prod = imageLoad(kernel, ivec2(i-minx,j-miny)) * vec4(imageLoad(image_input, ivec2(i,j)));
+            sum += prod;
+        }
+    }
+
+    imageStore(imageOutput, ivec2( minx, miny), sum);
+}

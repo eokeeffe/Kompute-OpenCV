@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <numeric>
+#include <cmath>
 
 #include <kompute/Kompute.hpp>
 #include <shader/my_shader.hpp>
@@ -66,6 +67,75 @@ cv::Mat sharpenKernel(){
   K.at<float>(2,2) = 0;
   
   return K;
+}
+
+cv::Mat laplacianKernel(){
+  cv::Mat K = cv::Mat(cv::Size(3,3),CV_32F);
+  K.at<float>(0,0) = 0;
+  K.at<float>(0,1) = 1;
+  K.at<float>(0,2) = 0;
+
+  K.at<float>(1,0) = 1;
+  K.at<float>(1,1) = -4;
+  K.at<float>(1,2) = 1;
+
+  K.at<float>(2,0) = 0;
+  K.at<float>(2,1) = 1;
+  K.at<float>(2,2) = 0;
+  
+  return K;
+}
+
+cv::Mat sobelXkernel(){
+  cv::Mat K = cv::Mat(cv::Size(3,3),CV_32F);
+  K.at<float>(0,0) = -1;
+  K.at<float>(0,1) = 0;
+  K.at<float>(0,2) = 1;
+
+  K.at<float>(1,0) = -2;
+  K.at<float>(1,1) = 0;
+  K.at<float>(1,2) = 2;
+
+  K.at<float>(2,0) = -1;
+  K.at<float>(2,1) = 0;
+  K.at<float>(2,2) = 1;
+  
+  return K;
+}
+
+cv::Mat sobelYkernel(){
+
+  cv::Mat K = cv::Mat(cv::Size(3,3),CV_32F);
+  K.at<float>(0,0) = -1;
+  K.at<float>(0,1) = -2;
+  K.at<float>(0,2) = -1;
+
+  K.at<float>(1,0) = 0;
+  K.at<float>(1,1) = 0;
+  K.at<float>(1,2) = 0;
+
+  K.at<float>(2,0) = 1;
+  K.at<float>(2,1) = 2;
+  K.at<float>(2,2) = 1;
+  
+  return K;
+}
+
+template<typename T>
+void getMinMaxRange(cv::Mat mat, T& vmin, T& vmax, T& omin, T& omax, T range_min, T range_max){
+  for(int j=0;j<mat.rows;j++){
+    for(int i=0;i<mat.cols;i++){
+      T value = mat.at<T>(j,i);
+      if(value >= range_min || value <= range_max){
+        vmin = std::min(vmin,value);
+        vmax = std::max(vmax,value);
+      }
+      else{
+        if(value>=0){omin = std::min(omin,value);}
+        omax = std::max(omax,value);
+      }
+    }
+  }
 }
 
 int main(int argc, char*argv[])
@@ -153,17 +223,19 @@ int main(int argc, char*argv[])
     std::vector<float> r3 = image3->vector();
     output = cv::Mat(cv::Size(in1.cols, in1.rows), CV_32FC1, r3.data());
 
-    cv::normalize(output, output, 0, 1, cv::NORM_MINMAX, -1, cv::Mat() );
-    output *= 255;
+    // this is a c++ conversion of the rescale_intensity in skimage
+    // see https://github.com/scikit-image/scikit-image/blob/main/skimage/exposure/exposure.py#L401
+    float imin=100000, imax=-999999, omin=100000, omax=-999999;
+    getMinMaxRange<float>(output, imin, imax, omin, omax, 0.0, 255.0);
+
+    cv::Mat rescaled = (output - imin) / (imax - imin);
+    rescaled = (rescaled * (omax - omin) + omin);
+    
     output.convertTo(output, CV_8UC1);
 
+    // show the result coming from opencv for comparison
     cv::Mat toutput;
     cv::filter2D( in1, toutput, -1, kernel);
-
-    std::cout << "#non zero values:" << countNonZero(output) << std::endl;
-
-    MatType(output);
-    MatType(toutput);
 
     cv::imshow("input",in1);
     cv::imshow("kernel",kernel);
@@ -173,6 +245,7 @@ int main(int argc, char*argv[])
     cv::waitKey(0);
 
     cv::imwrite("test.tiff",output);
+    cv::imwrite("gtest.tiff",toutput);
 
     return 0;
 }
